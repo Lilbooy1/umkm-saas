@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\Api\Admin\StoreController;
-use App\Http\Controllers\Api\Owner\StoreController as OwnerStoreController;
+use App\Http\Controllers\Api\Admin\StoreController as AdminStoreController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Owner\ProductCategoryController;
+use App\Http\Controllers\Api\Owner\StoreController as OwnerStoreController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
@@ -42,7 +43,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 Route::middleware(['auth:sanctum', 'role:super_admin'])
     ->prefix('admin')
     ->group(function () {
-        Route::apiResource('stores', StoreController::class);
+        Route::apiResource('stores', AdminStoreController::class);
     });
 
 Route::middleware(['auth:sanctum', 'role:owner,staff'])
@@ -51,4 +52,9 @@ Route::middleware(['auth:sanctum', 'role:owner,staff'])
         Route::get('/stores', [OwnerStoreController::class, 'index']);
         Route::get('/stores/{store}', [OwnerStoreController::class, 'show']);
         Route::patch('/stores/{store}', [OwnerStoreController::class, 'update']);
+
+        Route::apiResource('stores.categories', ProductCategoryController::class)
+            ->parameters([
+                'categories' => 'category',
+            ]);
     });
