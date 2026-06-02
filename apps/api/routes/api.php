@@ -2,12 +2,13 @@
 
 use App\Http\Controllers\Api\Admin\StoreController as AdminStoreController;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\Owner\ProductController;
-use App\Http\Controllers\Api\Owner\ProductCategoryController;
 use App\Http\Controllers\Api\Customer\CheckoutController;
-use App\Http\Controllers\Api\Customer\OrderController;
-use App\Http\Controllers\Api\Storefront\StorefrontController;
+use App\Http\Controllers\Api\Customer\OrderController as CustomerOrderController;
+use App\Http\Controllers\Api\Owner\OrderController as OwnerOrderController;
+use App\Http\Controllers\Api\Owner\ProductCategoryController;
+use App\Http\Controllers\Api\Owner\ProductController;
 use App\Http\Controllers\Api\Owner\StoreController as OwnerStoreController;
+use App\Http\Controllers\Api\Storefront\StorefrontController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
@@ -76,12 +77,17 @@ Route::middleware(['auth:sanctum', 'role:owner,staff'])
                 'products' => 'product',
             ]);
 
-
+        Route::get('/stores/{store}/orders', [OwnerOrderController::class, 'index']);
+        Route::get('/stores/{store}/orders/{order}', [OwnerOrderController::class, 'show']);
+        Route::patch('/stores/{store}/orders/{order}/status', [OwnerOrderController::class, 'updateStatus']);
+        Route::patch('/stores/{store}/orders/{order}/payment/confirm', [OwnerOrderController::class, 'confirmPayment']);
     });
 
 Route::middleware(['auth:sanctum', 'role:customer'])
     ->prefix('customer')
     ->group(function () {
         Route::post('/stores/{store:slug}/checkout', [CheckoutController::class, 'store']);
-        Route::apiResource('orders', OrderController::class)->only(['index', 'show']);
+
+        Route::apiResource('orders', CustomerOrderController::class)
+            ->only(['index', 'show']);
     });
