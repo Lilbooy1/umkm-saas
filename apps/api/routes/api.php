@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\StoreController;
+use App\Http\Controllers\Api\Owner\StoreController as OwnerStoreController;
 use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,4 +43,12 @@ Route::middleware(['auth:sanctum', 'role:super_admin'])
     ->prefix('admin')
     ->group(function () {
         Route::apiResource('stores', StoreController::class);
+    });
+
+Route::middleware(['auth:sanctum', 'role:owner,staff'])
+    ->prefix('owner')
+    ->group(function () {
+        Route::get('/stores', [OwnerStoreController::class, 'index']);
+        Route::get('/stores/{store}', [OwnerStoreController::class, 'show']);
+        Route::patch('/stores/{store}', [OwnerStoreController::class, 'update']);
     });
