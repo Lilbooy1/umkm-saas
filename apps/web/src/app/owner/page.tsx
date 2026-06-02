@@ -240,6 +240,13 @@ export default function OwnerDashboardPage() {
                           </Link>
 
                           <Link
+                            href={`/owner/stores/${store.id}/settings`}
+                            className="rounded-full border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800"
+                          >
+                            Pengaturan Toko
+                          </Link>
+
+                          <Link
                             href={`/toko/${store.slug}`}
                             className="rounded-full border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800"
                           >
