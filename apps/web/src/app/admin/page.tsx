@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch, ApiError } from "@/lib/api";
@@ -105,7 +105,6 @@ export default function AdminDashboardPage() {
       }
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadAdminDashboard();
   }, [router]);
 

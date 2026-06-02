@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch, ApiError } from "@/lib/api";
@@ -81,7 +81,6 @@ export default function AdminCreateStorePage() {
       }
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void checkAccess();
   }, [router]);
 

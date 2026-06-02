@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { getAuthToken, removeAuthToken } from "@/lib/auth";
@@ -100,12 +101,12 @@ export default function CustomerOrderDetailPage() {
   return (
     <main className="min-h-screen bg-zinc-950 px-6 py-10 text-white">
       <div className="mx-auto max-w-5xl">
-        <a
+        <link
           href="/customer/orders"
           className="inline-flex rounded-full border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition hover:bg-zinc-900"
         >
           ← Kembali ke riwayat order
-        </a>
+        </link>
 
         <div className="mt-8 rounded-3xl border border-zinc-800 bg-zinc-900 p-8">
           {isLoading ? (
