@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
 
 type Product = {
   id: number;
@@ -180,12 +181,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
             ) : null}
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <button
-                disabled={isOutOfStock}
-                className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isOutOfStock ? "Stok Habis" : "Tambah ke Keranjang"}
-              </button>
+                <AddToCartButton storeSlug={slug} product={product} />
+
+                <a
+                  href={`/toko/${slug}/cart`}
+                  className="rounded-full border border-zinc-700 px-6 py-3 text-center text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800"
+                >
+                  Lihat Keranjang
+                </a>
+              
 
               <a
                 href={`/toko/${slug}`}
