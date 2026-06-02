@@ -83,7 +83,7 @@ export default function OwnerDashboardPage() {
       }
     }
 
-    loadOwnerDashboard();
+    void loadOwnerDashboard();
   }, [router]);
 
   async function handleLogout() {
@@ -112,9 +112,7 @@ export default function OwnerDashboardPage() {
                 Owner Dashboard
               </p>
 
-              <h1 className="mt-3 text-3xl font-bold">
-                Dashboard UMKM
-              </h1>
+              <h1 className="mt-3 text-3xl font-bold">Dashboard UMKM</h1>
 
               <p className="mt-2 max-w-2xl text-sm text-zinc-400">
                 Kelola toko, lihat order masuk, dan pantau aktivitas penjualan
@@ -169,6 +167,7 @@ export default function OwnerDashboardPage() {
                     <p className="text-sm font-medium text-zinc-400">
                       Toko UMKM
                     </p>
+
                     <h2 className="mt-2 text-2xl font-bold">
                       Toko yang kamu kelola
                     </h2>
@@ -219,6 +218,12 @@ export default function OwnerDashboardPage() {
                         ) : null}
 
                         <div className="mt-6 flex flex-wrap gap-3">
+                          <Link
+                            href={`/owner/stores/${store.id}/orders`}
+                            className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200"
+                          >
+                            Lihat Order
+                          </Link>
 
                           <Link
                             href={`/owner/stores/${store.id}/products`}
@@ -228,10 +233,10 @@ export default function OwnerDashboardPage() {
                           </Link>
 
                           <Link
-                            href={`/owner/stores/${store.id}/orders`}
-                            className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200"
+                            href={`/owner/stores/${store.id}/categories`}
+                            className="rounded-full border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800"
                           >
-                            Lihat Order
+                            Kelola Kategori
                           </Link>
 
                           <Link
@@ -246,9 +251,8 @@ export default function OwnerDashboardPage() {
                   </div>
                 ) : (
                   <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950 p-8 text-center">
-                    <h3 className="text-xl font-semibold">
-                      Belum ada toko
-                    </h3>
+                    <h3 className="text-xl font-semibold">Belum ada toko</h3>
+
                     <p className="mt-2 text-zinc-400">
                       Toko akan muncul di sini setelah dibuat oleh super admin.
                     </p>
