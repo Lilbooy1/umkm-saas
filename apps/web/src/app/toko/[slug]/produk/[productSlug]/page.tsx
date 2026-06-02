@@ -95,7 +95,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
           <div className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900">
-            <div className="flex h-[420px] items-center justify-center bg-zinc-800 text-zinc-500">
+            <div className="flex h-105 items-center justify-center bg-zinc-800 text-zinc-500">
               {product.image_url ? (
                 <img
                   src={product.image_url}

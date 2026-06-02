@@ -41,6 +41,16 @@ export default function LoginPage() {
 
       saveAuthToken(response.token);
 
+        if (response.user.role === "owner" || response.user.role === "staff") {
+          router.push("/owner");
+          return;
+        }
+
+        if (response.user.role === "super_admin") {
+          router.push("/owner");
+          return;
+        }
+
       router.push("/customer");
     } catch (error) {
       if (error instanceof ApiError) {
