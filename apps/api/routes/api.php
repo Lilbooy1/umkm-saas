@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\StoreController;
 use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,3 +37,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ]);
     })->middleware('role:super_admin');
 });
+
+Route::middleware(['auth:sanctum', 'role:super_admin'])
+    ->prefix('admin')
+    ->group(function () {
+        Route::apiResource('stores', StoreController::class);
+    });
