@@ -4,6 +4,8 @@ use App\Http\Controllers\Api\Admin\StoreController as AdminStoreController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Owner\ProductController;
 use App\Http\Controllers\Api\Owner\ProductCategoryController;
+use App\Http\Controllers\Api\Customer\CheckoutController;
+use App\Http\Controllers\Api\Customer\OrderController;
 use App\Http\Controllers\Api\Storefront\StorefrontController;
 use App\Http\Controllers\Api\Owner\StoreController as OwnerStoreController;
 use Illuminate\Support\Facades\Route;
@@ -73,4 +75,13 @@ Route::middleware(['auth:sanctum', 'role:owner,staff'])
             ->parameters([
                 'products' => 'product',
             ]);
+
+
+    });
+
+Route::middleware(['auth:sanctum', 'role:customer'])
+    ->prefix('customer')
+    ->group(function () {
+        Route::post('/stores/{store:slug}/checkout', [CheckoutController::class, 'store']);
+        Route::apiResource('orders', OrderController::class)->only(['index', 'show']);
     });
