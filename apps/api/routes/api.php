@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\StoreController as AdminStoreController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Owner\ProductController;
 use App\Http\Controllers\Api\Owner\ProductCategoryController;
+use App\Http\Controllers\Api\Storefront\StorefrontController;
 use App\Http\Controllers\Api\Owner\StoreController as OwnerStoreController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,15 @@ Route::get('/health', function () {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::prefix('storefront')
+    ->scopeBindings()
+    ->group(function () {
+        Route::get('/stores/{store:slug}', [StorefrontController::class, 'showStore']);
+        Route::get('/stores/{store:slug}/categories', [StorefrontController::class, 'categories']);
+        Route::get('/stores/{store:slug}/products', [StorefrontController::class, 'products']);
+        Route::get('/stores/{store:slug}/products/{product:slug}', [StorefrontController::class, 'showProduct']);
+    });
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
