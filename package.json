@@ -1,0 +1,14 @@
+{
+  "name": "umkm-saas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SaaS ecommerce multi-UMKM with separated frontend and backend",
+  "scripts": {
+    "dev:web": "pnpm --dir apps/web dev",
+    "build:web": "pnpm --dir apps/web build",
+    "lint:web": "pnpm --dir apps/web lint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
