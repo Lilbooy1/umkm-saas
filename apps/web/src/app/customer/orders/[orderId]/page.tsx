@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiError } from "@/lib/api";
 import { getAuthToken, removeAuthToken } from "@/lib/auth";
 
 type OrderDetail = {
@@ -18,11 +18,6 @@ type OrderDetail = {
   total: string;
   status: string;
   created_at: string;
-  store: {
-    id: number;
-    name: string;
-    slug: string;
-  };
   items: {
     id: number;
     product_id: number | null;
@@ -69,59 +64,70 @@ function formatDate(value: string) {
 export default function CustomerOrderDetailPage() {
   const router = useRouter();
   const params = useParams<{ orderId: string }>();
+  const orderId = params.orderId;
 
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = getAuthToken();
+    async function loadOrderDetail() {
+      const token = getAuthToken();
 
-    if (!token) {
-      router.push("/login");
-      return;
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
+      try {
+        const response = await apiFetch<OrderDetailResponse>(
+          `/customer/orders/${orderId}`,
+          {
+            token,
+          },
+        );
+
+        setOrder(response.data);
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 403) {
+          setError("Kamu tidak punya akses ke order ini.");
+          return;
+        }
+
+        removeAuthToken();
+        router.push("/login");
+      } finally {
+        setIsLoading(false);
+      }
     }
 
-    apiFetch<OrderDetailResponse>(`/customer/orders/${params.orderId}`, {
-      token,
-    })
-      .then((response) => {
-        setOrder(response.data);
-      })
-      .catch(() => {
-        removeAuthToken();
-        setError("Order tidak ditemukan atau sesi login tidak valid.");
-        router.push("/login");
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [params.orderId, router]);
+    void loadOrderDetail();
+  }, [orderId, router]);
 
   return (
     <main className="min-h-screen bg-zinc-950 px-6 py-10 text-white">
       <div className="mx-auto max-w-5xl">
-        <link
+        <Link
           href="/customer/orders"
           className="inline-flex rounded-full border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition hover:bg-zinc-900"
         >
           ← Kembali ke riwayat order
-        </link>
+        </Link>
 
         <div className="mt-8 rounded-3xl border border-zinc-800 bg-zinc-900 p-8">
           {isLoading ? (
-            <p className="text-zinc-400">Memuat detail order...</p>
+            <p className="text-sm text-zinc-400">Memuat detail order...</p>
           ) : error ? (
-            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
+            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-300">
               {error}
             </div>
           ) : order ? (
             <>
               <p className="text-sm font-medium text-zinc-400">
-                Detail Order
+                Detail Pesanan
               </p>
 
-              <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <h1 className="text-3xl font-bold">
                     {order.invoice_number}
@@ -130,23 +136,30 @@ export default function CustomerOrderDetailPage() {
                   <p className="mt-2 text-sm text-zinc-500">
                     {formatDate(order.created_at)}
                   </p>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-zinc-800 px-3 py-1 text-xs text-zinc-300">
+                      Order: {order.status}
+                    </span>
+
+                    {order.payment ? (
+                      <span className="rounded-full bg-amber-500/10 px-3 py-1 text-xs text-amber-300">
+                        Payment: {order.payment.status}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <span className="rounded-full bg-zinc-800 px-3 py-1 text-sm text-zinc-300">
-                    {order.status}
-                  </span>
-
-                  {order.payment ? (
-                    <span className="rounded-full bg-amber-500/10 px-3 py-1 text-sm text-amber-300">
-                      {order.payment.status}
-                    </span>
-                  ) : null}
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5 lg:min-w-80">
+                  <p className="text-sm text-zinc-500">Total Pesanan</p>
+                  <p className="mt-2 text-3xl font-bold">
+                    {formatRupiah(order.total)}
+                  </p>
                 </div>
               </div>
 
-              <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
-                <section className="space-y-4">
+              <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_340px]">
+                <section className="space-y-6">
                   <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
                     <h2 className="font-semibold">Item Pesanan</h2>
 
@@ -194,40 +207,45 @@ export default function CustomerOrderDetailPage() {
                   </div>
                 </section>
 
-                <aside className="h-fit rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
-                  <h2 className="font-semibold">Ringkasan</h2>
+                <aside className="space-y-6">
+                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+                    <h2 className="font-semibold">Pembayaran</h2>
 
-                  <div className="mt-5 space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-zinc-400">Subtotal</span>
-                      <span>{formatRupiah(order.subtotal)}</span>
-                    </div>
+                    {order.payment ? (
+                      <div className="mt-4 space-y-3 text-sm text-zinc-300">
+                        <p>Method: {order.payment.method}</p>
+                        <p>Provider: {order.payment.provider}</p>
+                        <p>Status: {order.payment.status}</p>
+                        <p>Amount: {formatRupiah(order.payment.amount)}</p>
 
-                    <div className="flex justify-between border-t border-zinc-800 pt-3">
-                      <span className="text-zinc-400">Total</span>
-                      <span className="text-xl font-bold">
-                        {formatRupiah(order.total)}
-                      </span>
-                    </div>
+                        {order.payment.paid_at ? (
+                          <p>Dibayar: {formatDate(order.payment.paid_at)}</p>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <p className="mt-4 text-sm text-zinc-400">
+                        Data pembayaran belum tersedia.
+                      </p>
+                    )}
                   </div>
 
-                  {order.payment ? (
-                    <div className="mt-6 rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-100">
-                      <p className="font-semibold">Pembayaran</p>
-                      <p className="mt-2">
-                        Method: {order.payment.method}
-                      </p>
-                      <p>Status: {order.payment.status}</p>
-                      <p>Amount: {formatRupiah(order.payment.amount)}</p>
-                    </div>
-                  ) : null}
+                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+                    <h2 className="font-semibold">Ringkasan</h2>
 
-                  <a
-                    href={`/toko/${order.store.slug}`}
-                    className="mt-6 block rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200"
-                  >
-                    Belanja Lagi
-                  </a>
+                    <div className="mt-5 space-y-3 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-zinc-400">Subtotal</span>
+                        <span>{formatRupiah(order.subtotal)}</span>
+                      </div>
+
+                      <div className="flex justify-between border-t border-zinc-800 pt-3">
+                        <span className="text-zinc-400">Total</span>
+                        <span className="text-xl font-bold">
+                          {formatRupiah(order.total)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </aside>
               </div>
             </>
